@@ -6,6 +6,6 @@ COPY requirements /tmp/requirements
 RUN pip install --no-cache-dir -r /tmp/requirements/development.txt
 
 COPY . /app
+RUN chmod +x /app/scripts/docker-entrypoint.sh /app/scripts/docker-channels.sh
 
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-

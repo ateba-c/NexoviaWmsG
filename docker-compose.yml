@@ -36,7 +36,7 @@ services:
 
   backend:
     build:
-      context: ../../backend
+      context: ./backend
       dockerfile: ../infrastructure/docker/Dockerfile.backend
     command: /app/scripts/docker-entrypoint.sh
     environment:
@@ -51,7 +51,7 @@ services:
       DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,backend
       DJANGO_CORS_ALLOWED_ORIGINS: http://localhost:5173
     volumes:
-      - ../../backend:/app
+      - ./backend:/app
     ports:
       - "8000:8000"
     depends_on:
@@ -67,7 +67,7 @@ services:
 
   celery:
     build:
-      context: ../../backend
+      context: ./backend
       dockerfile: ../infrastructure/docker/Dockerfile.backend
     command: celery -A config worker -Q high,default,labels -l info --concurrency=4
     environment:
@@ -80,7 +80,7 @@ services:
       REDIS_CHANNEL_URL: redis://redis:6379/1
       DJANGO_SETTINGS_MODULE: config.settings.development
     volumes:
-      - ../../backend:/app
+      - ./backend:/app
     depends_on:
       db:
         condition: service_healthy
@@ -91,7 +91,7 @@ services:
 
   channels:
     build:
-      context: ../../backend
+      context: ./backend
       dockerfile: ../infrastructure/docker/Dockerfile.backend
     command: /app/scripts/docker-channels.sh
     environment:
@@ -104,7 +104,7 @@ services:
       REDIS_CHANNEL_URL: redis://redis:6379/1
       DJANGO_SETTINGS_MODULE: config.settings.development
     volumes:
-      - ../../backend:/app
+      - ./backend:/app
     ports:
       - "8001:8001"
     depends_on:
@@ -117,13 +117,13 @@ services:
 
   frontend:
     build:
-      context: ../../frontend
+      context: ./frontend
       dockerfile: ../infrastructure/docker/Dockerfile.frontend
     command: npm run dev -- --host
     environment:
       CHOKIDAR_USEPOLLING: "true"
     volumes:
-      - ../../frontend:/app
+      - ./frontend:/app
       - /app/node_modules
     ports:
       - "5173:5173"

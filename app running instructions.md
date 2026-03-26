@@ -4,13 +4,51 @@
 
 The repository currently supports:
 
+- one-command Docker bring-up from the repo root
 - backend code compilation
 - frontend production build
 - OpenAI-backed AI copilot endpoint wiring
 
 Full database-backed testing and live API usage still depend on a working PostgreSQL instance and Redis.
 
-## 1. Prerequisites
+## 1. Fastest Path: Docker
+
+From the repo root, the intended default startup path is now:
+
+```powershell
+docker compose up --build
+```
+
+That root-level command brings up:
+
+- PostgreSQL / TimescaleDB
+- Redis
+- Elasticsearch
+- Django backend
+- Celery worker
+- Channels / Daphne
+- Vite frontend
+
+Main URLs after startup:
+
+- frontend: `http://localhost:5173`
+- backend: `http://localhost:8000`
+- backend health: `http://localhost:8000/health/`
+- channels: `http://localhost:8001`
+
+To stop the stack:
+
+```powershell
+docker compose down
+```
+
+To stop and remove the database volume:
+
+```powershell
+docker compose down -v
+```
+
+## 2. Prerequisites
 
 Install locally:
 
@@ -18,12 +56,13 @@ Install locally:
 - Node.js 20+
 - PostgreSQL 16
 - Redis
+- Docker Desktop or compatible Docker Engine
 
 Use `.env.example` as the reference for local configuration.
 
 Do not rely on the current `.env` contents when reviewing this repo state.
 
-## 2. Backend Setup
+## 3. Backend Setup
 
 From the repo root:
 
@@ -43,7 +82,7 @@ python -m pip install -r requirements\base.txt
 
 The OpenAI SDK is now included in `backend/requirements/base.txt`.
 
-## 3. Frontend Setup
+## 4. Frontend Setup
 
 In a separate terminal:
 
@@ -52,7 +91,7 @@ cd frontend
 cmd /c npm install
 ```
 
-## 4. Configure Environment
+## 5. Configure Environment
 
 Copy values from `.env.example` into your own local environment setup.
 
@@ -70,7 +109,9 @@ OPENAI_MODEL=gpt-5
 OPENAI_SYSTEM_PROMPT=You are the NexoFlow warehouse copilot. Provide concise warehouse operations guidance.
 ```
 
-## 5. Start Infrastructure
+## 6. Start Infrastructure
+
+If you are using Docker, prefer `docker compose up --build` from the repo root and skip the separate local infra startup steps below.
 
 If you are using local services directly, make sure PostgreSQL and Redis are running.
 
@@ -80,7 +121,7 @@ If you are using the Docker scaffolding, start the infra from:
 
 Then continue with Django migrations.
 
-## 6. Apply Migrations
+## 7. Apply Migrations
 
 Once PostgreSQL credentials are fixed:
 
@@ -91,7 +132,9 @@ python manage.py migrate
 
 If tenancy bootstrapping is needed afterward, create your initial tenant/domain/admin user according to your local bootstrap plan.
 
-## 7. Run The Backend
+When running through Docker, the backend container already runs `python manage.py migrate --noinput` on startup.
+
+## 8. Run The Backend
 
 ```powershell
 cd backend
@@ -110,7 +153,7 @@ Health check:
 http://localhost:8000/health/
 ```
 
-## 8. Run The Frontend
+## 9. Run The Frontend
 
 ```powershell
 cd frontend
@@ -123,7 +166,7 @@ Frontend base URL:
 http://localhost:5173
 ```
 
-## 9. Quick Verification Commands
+## 10. Quick Verification Commands
 
 These do not require a live database to confirm code/build shape:
 
@@ -144,7 +187,7 @@ python manage.py check
 python manage.py test
 ```
 
-## 10. AI Copilot Endpoints
+## 11. AI Copilot Endpoints
 
 The backend now exposes:
 
@@ -155,7 +198,7 @@ The backend now exposes:
 
 These endpoints are behind the API authentication layer already configured in Django REST Framework.
 
-## 11. AI Copilot Test Flow
+## 12. AI Copilot Test Flow
 
 After login/auth is working and the database is migrated:
 
@@ -194,7 +237,7 @@ Behavior:
 - the assistant message is stored
 - the OpenAI response id is persisted on the conversation for multi-turn continuity
 
-## 12. Recommended Manual Test Pass
+## 13. Recommended Manual Test Pass
 
 After backend and frontend are running:
 
@@ -204,13 +247,15 @@ After backend and frontend are running:
 4. Submit operational actions and confirm success/error feedback.
 5. Test the AI copilot API with a real conversation and a real `OPENAI_API_KEY`.
 
-## 13. Current Known Blockers
+## 14. Current Known Blockers
 
 - PostgreSQL auth was previously failing for `nexoflow@localhost:5432`
 - live end-to-end testing depends on that being fixed
 - frontend auth/session flow is still not fully wired
 
-## 14. Push / Repo Note
+If you use the Docker stack, the previous local PostgreSQL auth issue should not matter unless your Docker environment has its own startup problem.
+
+## 15. Push / Repo Note
 
 This folder was not originally initialized as a git repository during the build process.
 
