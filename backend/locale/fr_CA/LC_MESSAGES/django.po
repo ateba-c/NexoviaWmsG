@@ -1,0 +1,4 @@
+msgid ""
+msgstr ""
+"Language: fr_CA\n"
+

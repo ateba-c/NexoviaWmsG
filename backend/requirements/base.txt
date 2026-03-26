@@ -1,0 +1,15 @@
+Django==5.1.*
+djangorestframework==3.15.*
+django-tenants==3.7.*
+djangorestframework-simplejwt==5.*
+django-cors-headers==4.*
+django-filter==24.*
+channels==4.*
+channels-redis==4.*
+celery==5.4.*
+redis==5.*
+psycopg[binary]==3.*
+drf-spectacular==0.27.*
+django-health-check==3.*
+python-dotenv==1.*
+openai==1.*
